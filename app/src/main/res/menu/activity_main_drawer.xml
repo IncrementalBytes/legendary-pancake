@@ -5,33 +5,33 @@
 
   <group android:checkableBehavior="single">
     <item
-      android:id="@+id/nav_camera"
-      android:icon="@drawable/ic_menu_camera"
-      android:title="Import"/>
+      android:id="@+id/nav_home"
+      android:icon="@drawable/ic_menu_home_dark"
+      android:title="@string/home"/>
     <item
-      android:id="@+id/nav_gallery"
-      android:icon="@drawable/ic_menu_gallery"
-      android:title="Gallery"/>
+      android:id="@+id/nav_new_game"
+      android:icon="@drawable/ic_menu_new_dark"
+      android:title="@string/new_game"/>
     <item
-      android:id="@+id/nav_slideshow"
-      android:icon="@drawable/ic_menu_slideshow"
-      android:title="Slideshow"/>
+      android:id="@+id/nav_leaderboard"
+      android:icon="@drawable/ic_menu_leaderboard_dark"
+      android:title="@string/leaderboard"/>
     <item
-      android:id="@+id/nav_manage"
-      android:icon="@drawable/ic_menu_manage"
-      android:title="Tools"/>
+      android:id="@+id/nav_stats"
+      android:icon="@drawable/ic_menu_statistics_dark"
+      android:title="@string/statistics"/>
   </group>
 
-  <item android:title="Communicate">
+  <item android:title="">
     <menu>
       <item
-        android:id="@+id/nav_share"
-        android:icon="@drawable/ic_menu_share"
-        android:title="Share"/>
+        android:id="@+id/nav_preferences"
+        android:icon="@drawable/ic_menu_preferences_dark"
+        android:title="@string/preferences"/>
       <item
-        android:id="@+id/nav_send"
-        android:icon="@drawable/ic_menu_send"
-        android:title="Send"/>
+        android:id="@+id/nav_log_out"
+        android:icon="@drawable/ic_menu_logout_dark"
+        android:title="@string/logout"/>
     </menu>
   </item>
 

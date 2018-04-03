@@ -1,9 +1,17 @@
 <resources>
-  <string name="app_name">PicklyTheBest</string>
+  <string name="app_name">Pickly the Best</string>
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
   <string name="nav_header_title">Android Studio</string>
   <string name="nav_header_subtitle">android.studio@android.com</string>
   <string name="nav_header_desc">Navigation header</string>
-  <string name="action_settings">Settings</string>
+  <string name="logout">Logout</string>
+  <string name="preferences">Preferences</string>
+  <string name="home">Home</string>
+  <string name="new_game">New Game</string>
+  <string name="statistics">Statistics</string>
+  <string name="leaderboard">Leaderboard</string>
+  <string name="attempts_header">Attempts:</string>
+  <string name="take_a_guess">Take a guess!</string>
+  <string name="correct_answer">Congratulations! Do you wish to continue?</string>
 </resources>
