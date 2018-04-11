@@ -4,18 +4,6 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <TextView
-    android:id="@+id/game_text_level"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/default_view_margin"
-    android:gravity="center"
-    android:textSize="18sp"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="1.0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"/>
-
   <GridView
     android:id="@+id/game_grid_choices"
     android:layout_width="wrap_content"
@@ -29,9 +17,9 @@
     android:stretchMode="columnWidth"
     android:verticalSpacing="10dp"
     app:layout_constraintBottom_toTopOf="@id/game_text_attempts"
-    app:layout_constraintTop_toBottomOf="@id/game_text_level"/>
+    app:layout_constraintTop_toTopOf="parent"/>
 
-  <!-- TODO: add control buttons -->
+  <!-- TODO: add purchased hint/cheat buttons -->
 
   <TextView
     android:id="@+id/game_text_attempts"
@@ -40,17 +28,17 @@
     android:layout_margin="@dimen/default_view_margin"
     android:layout_marginEnd="8dp"
     app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toStartOf="@+id/game_text_guesses"
+    app:layout_constraintStart_toStartOf="parent"/>
+  <TextView
+    android:id="@+id/game_text_guesses"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/default_view_margin"
+    android:layout_marginEnd="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toStartOf="@+id/game_guideline"
     app:layout_constraintStart_toStartOf="parent"/>
-  <!--<TextView-->
-    <!--android:id="@+id/game_text_timer"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_margin="@dimen/default_view_margin"-->
-    <!--android:layout_marginStart="8dp"-->
-    <!--app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--app:layout_constraintStart_toStartOf="@+id/game_guideline"/>-->
   <Chronometer
     android:id="@+id/game_chronometer"
     android:layout_width="wrap_content"
@@ -66,6 +54,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    app:layout_constraintGuide_begin="192dp"/>
+    app:layout_constraintGuide_begin="270dp"/>
 
 </android.support.constraint.ConstraintLayout>

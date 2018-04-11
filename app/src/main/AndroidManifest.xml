@@ -8,18 +8,19 @@
     android:label="@string/app_name"
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
-    android:theme="@style/AppTheme">
+    android:theme="@style/AppTheme"
+    android:fullBackupContent="@xml/backup_descriptor">
     <activity
-      android:label="@string/app_name"
-      android:name=".MainActivity"
-      android:theme="@style/AppTheme.NoActionBar">
+      android:name="net.frostedbytes.android.picklythebest.MainActivity"
+      android:label="@string/app_name"/>
+    <activity android:name="net.frostedbytes.android.picklythebest.SignInActivity">
       <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
+        <action android:name="android.intent.action.MAIN" />
 
-        <category android:name="android.intent.category.LAUNCHER"/>
+        <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name=".BaseActivity"/>
+    <activity android:name="net.frostedbytes.android.picklythebest.BaseActivity"/>
   </application>
 
 </manifest>

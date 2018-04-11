@@ -4,35 +4,47 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <Button
-    android:id="@+id/main_button_new"
+  <include
+    layout="@layout/content_user_summary"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_margin="@dimen/default_view_margin"
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    app:layout_constraintBottom_toTopOf="@+id/main_button_new"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"/>
+
+  <Button
+    android:id="@+id/main_button_new"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/default_view_margin"
     android:text="@string/new_game"
     app:layout_constraintBottom_toTopOf="@+id/main_button_stats"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.5"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"/>
+    app:layout_constraintStart_toStartOf="parent"/>
   <Button
     android:id="@+id/main_button_stats"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
+    android:layout_margin="@dimen/default_view_margin"
     android:text="@string/statistics"
     app:layout_constraintBottom_toTopOf="@+id/main_button_leaderboard"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.5"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/main_button_new"/>
+    app:layout_constraintStart_toStartOf="parent"/>
   <Button
     android:id="@+id/main_button_leaderboard"
-    android:layout_width="wrap_content"
+    android:layout_width="0dp"
     android:layout_height="wrap_content"
+    android:layout_margin="@dimen/default_view_margin"
     android:text="@string/leaderboard"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.5"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/main_button_stats"/>
+    app:layout_constraintStart_toStartOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

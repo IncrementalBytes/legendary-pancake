@@ -1,6 +1,7 @@
 package net.frostedbytes.android.picklythebest.utils;
 
 import android.util.Log;
+import com.google.firebase.crash.FirebaseCrash;
 import java.util.Locale;
 import net.frostedbytes.android.picklythebest.BuildConfig;
 
@@ -31,7 +32,7 @@ public class LogUtils {
     if (BuildConfig.DEBUG) {
       Log.e(tag, String.format(Locale.ENGLISH, messageFormat, args));
     } else {
-      // TODO: FirebaseCrash.log(String.format(Locale.ENGLISH, messageFormat, args));
+      FirebaseCrash.log(String.format(Locale.ENGLISH, messageFormat, args));
     }
   }
 

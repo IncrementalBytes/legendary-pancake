@@ -2,16 +2,39 @@
   <string name="app_name">Pickly the Best</string>
   <string name="navigation_drawer_open">Open navigation drawer</string>
   <string name="navigation_drawer_close">Close navigation drawer</string>
-  <string name="nav_header_title">Android Studio</string>
-  <string name="nav_header_subtitle">android.studio@android.com</string>
-  <string name="nav_header_desc">Navigation header</string>
+
   <string name="logout">Logout</string>
   <string name="preferences">Preferences</string>
   <string name="home">Home</string>
   <string name="new_game">New Game</string>
   <string name="statistics">Statistics</string>
   <string name="leaderboard">Leaderboard</string>
-  <string name="attempts_header">Attempts:</string>
   <string name="take_a_guess">Take a guess!</string>
   <string name="correct_answer">Congratulations! Do you wish to continue?</string>
+
+  <string name="header_attempts">Attempts:</string>
+  <string name="header_guesses">Guesses:</string>
+  <string name="header_time">Time:</string>
+  <string name="header_total_time">Total Time:</string>
+  <string name="header_average_time_per_level">Average Time per Level:</string>
+  <string name="header_average_guesses">Average Guesses:</string>
+  <string name="header_total_guesses">Total Guesses:</string>
+  <string name="header_levels_played">Levels Played:</string>
+
+  <string name="desc_locked">App requires authentication before continuing</string>
+
+  <string name="next_level">Next Level</string>
+  <string name="quit">Quit</string>
+  <string name="status_authenticating">Authenticating…</string>
+  <string name="thinking">I am thinking of a number…</string>
+  <string name="placeholder">TBD</string>
+  <string name="logout_message">Are you sure you want to log out?</string>
+  <string name="back">Back to Main Menu</string>
+  <string name="header_levels_solved">Levels Solved:</string>
+
+  <plurals name="game_summary">
+    <item quantity="one">%d guess in %s</item>
+    <item quantity="other">%d guesses in %s</item>
+  </plurals>
+
 </resources>
