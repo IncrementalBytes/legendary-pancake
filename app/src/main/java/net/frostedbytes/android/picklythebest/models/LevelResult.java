@@ -1,12 +1,10 @@
 package net.frostedbytes.android.picklythebest.models;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import net.frostedbytes.android.picklythebest.BaseActivity;
+import net.frostedbytes.android.picklythebest.utils.StringUtils;
 
 public class LevelResult {
 
@@ -15,7 +13,7 @@ public class LevelResult {
   public int Guesses;
   public int Level;
   public boolean IsSuccessful;
-  public long Time;
+  public long Milliseconds;
   public String UserId;
 
   public LevelResult() {
@@ -23,16 +21,19 @@ public class LevelResult {
     this.Guesses = 0;
     this.Level = 0;
     this.IsSuccessful = false;
-    this.Time = 0;
+    this.Milliseconds = 0;
     this.UserId = BaseActivity.DEFAULT_ID;
   }
 
   @Override
   public String toString() {
 
-    Date temp = new Date(this.Time);
-    DateFormat dateFormat = new SimpleDateFormat("mm:ss.SSS", Locale.ENGLISH);
-    return String.format(Locale.ENGLISH, "Level %d - Guesses: %d, Time: %s", this.Level, this.Guesses, dateFormat.format(temp));
+    return String.format(
+      Locale.ENGLISH,
+      "Level %d - Guesses: %d, Time: %s",
+      this.Level,
+      this.Guesses,
+      StringUtils.toTimeString(this.Milliseconds));
   }
 
   /**
@@ -44,7 +45,7 @@ public class LevelResult {
     HashMap<String, Object> result = new HashMap<>();
     result.put("Guesses", this.Guesses);
     result.put("Level", this.Level);
-    result.put("Time", this.Time);
+    result.put("Time", this.Milliseconds);
     return result;
   }
 }

@@ -22,6 +22,16 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/default_view_margin"
     android:text="@string/new_game"
+    app:layout_constraintBottom_toTopOf="@+id/main_button_continue"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.5"
+    app:layout_constraintStart_toStartOf="parent"/>
+  <Button
+    android:id="@+id/main_button_continue"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/default_view_margin"
+    android:text="@string/continue_game"
     app:layout_constraintBottom_toTopOf="@+id/main_button_stats"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.5"

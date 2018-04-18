@@ -13,6 +13,10 @@
       android:icon="@drawable/ic_menu_new_dark"
       android:title="@string/new_game"/>
     <item
+      android:id="@+id/nav_continue_game"
+      android:icon="@drawable/ic_menu_continue_dark"
+      android:title="@string/continue_game"/>
+    <item
       android:id="@+id/nav_leaderboard"
       android:icon="@drawable/ic_menu_leaderboard_dark"
       android:title="@string/leaderboard"/>

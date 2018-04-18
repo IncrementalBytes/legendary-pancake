@@ -39,7 +39,7 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toStartOf="@+id/game_guideline"
     app:layout_constraintStart_toStartOf="parent"/>
-  <Chronometer
+  <net.frostedbytes.android.picklythebest.views.LevelChronometer
     android:id="@+id/game_chronometer"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

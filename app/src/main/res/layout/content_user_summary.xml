@@ -41,24 +41,6 @@
     android:textStyle="bold"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/summary_text_guesses"/>
-  <TextView
-    android:id="@+id/summary_text_average_guesses"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/default_view_margin"
-    android:text="@string/header_average_guesses"
-    android:textStyle="bold"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/summary_text_time"/>
-  <TextView
-    android:id="@+id/summary_text_average_time"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/default_view_margin"
-    android:text="@string/header_average_time_per_level"
-    android:textStyle="bold"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/summary_text_average_guesses"/>
 
   <android.support.constraint.Guideline
     android:id="@+id/summary_guideline"
@@ -107,25 +89,5 @@
     app:layout_constraintBottom_toBottomOf="@+id/summary_text_time"
     app:layout_constraintStart_toStartOf="@+id/summary_guideline"
     app:layout_constraintTop_toTopOf="@+id/summary_text_time"/>
-  <TextView
-    android:id="@+id/summary_text_average_guesses_value"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/default_view_margin"
-    android:text="@string/placeholder"
-    android:gravity="end"
-    app:layout_constraintBottom_toBottomOf="@+id/summary_text_average_guesses"
-    app:layout_constraintStart_toStartOf="@+id/summary_guideline"
-    app:layout_constraintTop_toTopOf="@+id/summary_text_average_guesses"/>
-  <TextView
-    android:id="@+id/summary_text_average_time_value"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/default_view_margin"
-    android:text="@string/placeholder"
-    android:gravity="end"
-    app:layout_constraintBottom_toBottomOf="@+id/summary_text_average_time"
-    app:layout_constraintStart_toStartOf="@+id/summary_guideline"
-    app:layout_constraintTop_toTopOf="@+id/summary_text_average_time"/>
 
 </android.support.constraint.ConstraintLayout>

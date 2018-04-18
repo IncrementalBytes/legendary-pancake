@@ -1,9 +1,11 @@
 package net.frostedbytes.android.picklythebest.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v7.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +16,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import net.frostedbytes.android.picklythebest.BaseActivity;
 import net.frostedbytes.android.picklythebest.R;
 import net.frostedbytes.android.picklythebest.models.UserSummary;
 import net.frostedbytes.android.picklythebest.utils.LogUtils;
+import net.frostedbytes.android.picklythebest.utils.StringUtils;
 
 public class MainFragment extends Fragment {
 
@@ -29,8 +29,10 @@ public class MainFragment extends Fragment {
 
   public interface OnMainListener {
 
-    void onNewGame();
-    void onLeaderboard();
+    void onContinueGame(int level);
+    void onShowLeaderboard();
+    void onStartNewGame();
+    void onShowStatistics();
   }
 
   private OnMainListener mCallback;
@@ -39,9 +41,9 @@ public class MainFragment extends Fragment {
   private TextView mSolvedTextView;
   private TextView mGuessesTextView;
   private TextView mTimeTextView;
-  private TextView mAverageGuessesTextView;
-  private TextView mAverageTimeTextView;
+  private Button mContinueGameButton;
 
+  private int mLevel;
   private String mUserId;
   private UserSummary mUserSummary;
 
@@ -65,16 +67,29 @@ public class MainFragment extends Fragment {
     final View view = inflater.inflate(R.layout.fragment_main, container, false);
 
     Button newGameButton = view.findViewById(R.id.main_button_new);
+    mContinueGameButton = view.findViewById(R.id.main_button_continue);
+    Button statisticsButton = view.findViewById(R.id.main_button_stats);
     Button leaderboardButton = view.findViewById(R.id.main_button_leaderboard);
     mPlayedTextView = view.findViewById(R.id.summary_text_levels_value);
     mSolvedTextView = view.findViewById(R.id.summary_text_solved_value);
     mGuessesTextView = view.findViewById(R.id.summary_text_guesses_value);
     mTimeTextView = view.findViewById(R.id.summary_text_time_value);
-    mAverageGuessesTextView = view.findViewById(R.id.summary_text_average_guesses_value);
-    mAverageTimeTextView = view.findViewById(R.id.summary_text_average_time_value);
 
-    newGameButton.setOnClickListener(buttonView -> mCallback.onNewGame());
-    leaderboardButton.setOnClickListener(buttonView -> mCallback.onLeaderboard());
+    newGameButton.setOnClickListener(buttonView -> mCallback.onStartNewGame());
+    if (getContext() != null) {
+      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+      if (sharedPreferences.contains(UserPreferencesFragment.KEY_GET_LAST_LEVEL_SETTING)) {
+        mLevel = Integer.parseInt(sharedPreferences.getString(UserPreferencesFragment.KEY_GET_LAST_LEVEL_SETTING, "-1"));
+      }
+    } else {
+      LogUtils.warn(TAG, "Could not retrieve shared preferences.");
+      mLevel = -1;
+    }
+
+    statisticsButton.setOnClickListener(buttonView -> mCallback.onShowStatistics());
+
+    leaderboardButton.setEnabled(false); // TODO: remove when implemented
+    leaderboardButton.setOnClickListener(buttonView -> mCallback.onShowLeaderboard());
 
     // look for user data in database
     mSummaryQuery = FirebaseDatabase.getInstance().getReference().child(UserSummary.ROOT).child(mUserId);
@@ -83,7 +98,7 @@ public class MainFragment extends Fragment {
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
 
-        LogUtils.debug(TAG, "++onDataChange()");
+        LogUtils.debug(TAG, "onDataChange() for UserSummary query.");
         UserSummary summary = dataSnapshot.getValue(UserSummary.class);
         if (summary != null) {
           mUserSummary = summary;
@@ -94,7 +109,7 @@ public class MainFragment extends Fragment {
       @Override
       public void onCancelled(DatabaseError databaseError) {
 
-        LogUtils.debug(TAG, "++onCancelled(DatabaseError)");
+        LogUtils.debug(TAG, "onCancelled() for UserSummary query.");
         LogUtils.error(TAG, databaseError.getMessage());
       }
     };
@@ -147,21 +162,19 @@ public class MainFragment extends Fragment {
       mPlayedTextView.setText(String.format(Locale.ENGLISH, "%,d", mUserSummary.LevelsPlayed));
       mSolvedTextView.setText(String.format(Locale.ENGLISH, "%,d", mUserSummary.LevelsSolved));
       mGuessesTextView.setText(String.format(Locale.ENGLISH, "%,d", mUserSummary.TotalGuesses));
-      Date temp = new Date(mUserSummary.TotalTime);
-      DateFormat dateFormat = new SimpleDateFormat("mm:ss.SSS", Locale.ENGLISH);
-      mTimeTextView.setText(String.format(Locale.ENGLISH, "%s", dateFormat.format(temp)));
-      double average = mUserSummary.TotalGuesses / mUserSummary.LevelsPlayed;
-      mAverageGuessesTextView.setText(String.format(Locale.ENGLISH, "%,f", average));
-      average = mUserSummary.TotalTime / mUserSummary.LevelsPlayed;
-      temp = new Date(Math.round(average));
-      mAverageTimeTextView.setText(String.format(Locale.ENGLISH, "%s", dateFormat.format(temp)));
+      mTimeTextView.setText(StringUtils.toTimeString(mUserSummary.TotalMilliseconds));
     } else {
       mPlayedTextView.setText("-");
       mSolvedTextView.setText("-");
       mGuessesTextView.setText("-");
       mTimeTextView.setText("-");
-      mAverageGuessesTextView.setText("-");
-      mAverageTimeTextView.setText("-");
+    }
+
+    if (mLevel > 0) {
+      mContinueGameButton.setEnabled(true);
+      mContinueGameButton.setOnClickListener(buttonView -> mCallback.onContinueGame(mLevel));
+    } else {
+      mContinueGameButton.setEnabled(false);
     }
   }
 }

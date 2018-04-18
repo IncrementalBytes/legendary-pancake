@@ -2,6 +2,7 @@ package net.frostedbytes.android.picklythebest;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +31,8 @@ import java.util.Locale;
 import java.util.Objects;
 import net.frostedbytes.android.picklythebest.fragments.GameFragment;
 import net.frostedbytes.android.picklythebest.fragments.MainFragment;
+import net.frostedbytes.android.picklythebest.fragments.StatisticsFragment;
+import net.frostedbytes.android.picklythebest.fragments.UserPreferencesFragment;
 import net.frostedbytes.android.picklythebest.models.LevelResult;
 import net.frostedbytes.android.picklythebest.models.LevelSummary;
 import net.frostedbytes.android.picklythebest.models.UserSummary;
@@ -43,7 +47,6 @@ public class MainActivity extends BaseActivity implements
   private final static String TAG = MainActivity.class.getSimpleName();
 
   private DrawerLayout mDrawer;
-  private NavigationView mNavigationView;
   private Toolbar mToolbar;
 
   private int mLevel;
@@ -71,7 +74,7 @@ public class MainActivity extends BaseActivity implements
     mDrawer.addDrawerListener(toggle);
     toggle.syncState();
 
-    mNavigationView = findViewById(R.id.nav_view);
+    NavigationView mNavigationView = findViewById(R.id.nav_view);
     View headerView =  mNavigationView.getHeaderView(0);
     TextView userNameText = headerView.findViewById(R.id.nav_header_name);
     TextView emailText = headerView.findViewById(R.id.nav_header_email);
@@ -92,14 +95,14 @@ public class MainActivity extends BaseActivity implements
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
 
-        LogUtils.debug(TAG, "++onDataChange()");
+        LogUtils.debug(TAG, "onDataChange() for LevelSummary query.");
         mLevelSummaryList = new ArrayList<>();
         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-          LevelSummary summary = snapshot.getValue(LevelSummary.class);
-          if (summary != null) {
+          LevelSummary levelSummary = snapshot.getValue(LevelSummary.class);
+          if (levelSummary != null) {
             String levelString = snapshot.getKey().substring(3, snapshot.getKey().length());
-            summary.Level = Integer.parseInt(levelString);
-            mLevelSummaryList.add(summary);
+            levelSummary.Level = Integer.parseInt(levelString);
+            mLevelSummaryList.add(levelSummary);
           }
         }
 
@@ -109,7 +112,7 @@ public class MainActivity extends BaseActivity implements
       @Override
       public void onCancelled(DatabaseError databaseError) {
 
-        LogUtils.debug(TAG, "++onCancelled(DatabaseError)");
+        LogUtils.debug(TAG, "onCancelled() for LevelSummary query.");
         LogUtils.error(TAG, databaseError.getMessage());
       }
     };
@@ -126,8 +129,18 @@ public class MainActivity extends BaseActivity implements
     if (mDrawer != null && mDrawer.isDrawerOpen(GravityCompat.START)) {
       mDrawer.closeDrawer(GravityCompat.START);
     } else {
-      super.onBackPressed();
+      replaceFragment(MainFragment.newInstance(mUserId));
     }
+  }
+
+  @Override
+  public void onContinueGame(int level) {
+
+    LogUtils.debug(TAG, "++onContinueGame(%d)", level);
+    mLevel = level;
+    mToolbar.setTitle(String.format(Locale.ENGLISH, "Level %d", mLevel));
+    Fragment gameFragment = GameFragment.newInstance(mLevel);
+    replaceFragment(gameFragment);
   }
 
   @Override
@@ -159,11 +172,15 @@ public class MainActivity extends BaseActivity implements
     showProgressDialog(getString(R.string.thinking));
     pushLevelResult(levelResult);
 
+    // update last known game
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    sharedPreferences.edit().putString(UserPreferencesFragment.KEY_GET_LAST_LEVEL_SETTING, String.valueOf(levelResult.Level)).apply();
+
     // advance to the next level of the game
     mLevel = levelResult.Level + 1;
     mToolbar.setTitle(String.format(Locale.ENGLISH, "Level %d", mLevel));
     Fragment gameFragment = GameFragment.newInstance(mLevel);
-    replaceFragment(gameFragment, String.format(Locale.ENGLISH, "%s-%d", gameFragment.getClass().getName(), mLevel));
+    replaceFragment(gameFragment);
   }
 
   @Override
@@ -171,24 +188,14 @@ public class MainActivity extends BaseActivity implements
 
     LogUtils.debug(TAG, "++onGameQuit(LevelResult)");
     pushLevelResult(levelResult);
+
+    // update last known game
+    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    sharedPreferences.edit().putString(UserPreferencesFragment.KEY_GET_LAST_LEVEL_SETTING, String.valueOf(levelResult.Level)).apply();
+
+    // return to the main screen
     mToolbar.setTitle(getString(R.string.app_name));
     replaceFragment(MainFragment.newInstance(mUserId));
-  }
-
-  @Override
-  public void onLeaderboard() {
-
-    LogUtils.debug(TAG, "++onLeaderboard()");
-    LogUtils.warn(TAG, "Not yet implemented");
-  }
-
-  @Override
-  public void onNewGame() {
-
-    LogUtils.debug(TAG, "++onNewGame()");
-    mNavigationView.getMenu().findItem(R.id.nav_new_game).setEnabled(false);
-    mLevel = 1;
-    replaceFragment(GameFragment.newInstance(mLevel));
   }
 
   @Override
@@ -197,18 +204,17 @@ public class MainActivity extends BaseActivity implements
     LogUtils.debug(TAG, "++onNavigationItemSelected(MenuItem)");
     switch (Objects.requireNonNull(item).getItemId()) {
       case R.id.nav_home:
-        mNavigationView.getMenu().findItem(R.id.nav_new_game).setEnabled(true);
         mToolbar.setTitle(getString(R.string.app_name));
         replaceFragment(MainFragment.newInstance(mUserId));
         break;
       case R.id.nav_new_game:
-        mNavigationView.getMenu().findItem(R.id.nav_new_game).setEnabled(false);
         mLevel = 1;
         replaceFragment(GameFragment.newInstance(mLevel));
         break;
       case R.id.nav_leaderboard:
         break;
       case R.id.nav_stats:
+        replaceFragment(StatisticsFragment.newInstance(mUserId));
         break;
       case R.id.nav_preferences:
         break;
@@ -245,6 +251,29 @@ public class MainActivity extends BaseActivity implements
     return true;
   }
 
+  @Override
+  public void onShowLeaderboard() {
+
+    LogUtils.debug(TAG, "++onLeaderboard()");
+    LogUtils.warn(TAG, "Not yet implemented");
+  }
+
+  @Override
+  public void onShowStatistics() {
+
+    LogUtils.debug(TAG, "++onShowStatistics()");
+    replaceFragment(StatisticsFragment.newInstance(mUserId));
+  }
+
+  @Override
+  public void onStartNewGame() {
+
+    LogUtils.debug(TAG, "++onNewGame()");
+//    mNavigationView.getMenu().findItem(R.id.nav_new_game).setEnabled(false);
+    mLevel = 1;
+    replaceFragment(GameFragment.newInstance(mLevel));
+  }
+
   private void getUserSummaryData() {
 
     LogUtils.debug(TAG, "++getUserSummaryData()");
@@ -254,19 +283,20 @@ public class MainActivity extends BaseActivity implements
       @Override
       public void onDataChange(DataSnapshot dataSnapshot) {
 
-        LogUtils.debug(TAG, "++onDataChange()");
+        LogUtils.debug(TAG, "onDataChanged() for UserSummary query.");
         UserSummary summary = dataSnapshot.getValue(UserSummary.class);
         if (summary != null) {
           mUserSummary = summary;
         } else {
           LogUtils.warn(TAG, "There was no user summary to retrieve.");
+          mUserSummary = new UserSummary();
         }
       }
 
       @Override
       public void onCancelled(DatabaseError databaseError) {
 
-        LogUtils.debug(TAG, "++onCancelled(DatabaseError)");
+        LogUtils.debug(TAG, "onCancelled() for UserSummary query.");
         LogUtils.error(TAG, databaseError.getMessage());
       }
     };
@@ -295,15 +325,15 @@ public class MainActivity extends BaseActivity implements
     String queryPath = PathUtils.combine(LevelSummary.ROOT, mUserId, levelId);
     boolean found = false;
     if (mLevelSummaryList != null) { // locate existing level summary
-      for (LevelSummary summary : mLevelSummaryList) {
-        if (summary.Level == levelResult.Level) { // update the existing level data
-          LogUtils.debug(TAG, "Before: %s", summary.toString());
-          summary.Played++;
-          summary.Solved = levelResult.IsSuccessful ? summary.Solved + 1 : summary.Solved;
-          summary.TotalTime += levelResult.Time;
-          summary.TotalGuesses += levelResult.Guesses;
-          LogUtils.debug(TAG, "After: %s", summary.toString());
-          FirebaseDatabase.getInstance().getReference().child(queryPath).setValue(summary.toMap());
+      for (LevelSummary levelSummary : mLevelSummaryList) {
+        if (levelSummary.Level == levelResult.Level) { // update the existing level data
+          LogUtils.debug(TAG, "Before: %s", levelSummary.toString());
+          levelSummary.Played++;
+          levelSummary.Solved = levelResult.IsSuccessful ? levelSummary.Solved + 1 : levelSummary.Solved;
+          levelSummary.Milliseconds += levelResult.Milliseconds;
+          levelSummary.TotalGuesses += levelResult.Guesses;
+          LogUtils.debug(TAG, "After: %s", levelSummary.toString());
+          FirebaseDatabase.getInstance().getReference().child(queryPath).setValue(levelSummary.toMap());
           found = true;
           break;
         }
@@ -313,14 +343,14 @@ public class MainActivity extends BaseActivity implements
     }
 
     if (!found) {
-      LevelSummary summary = new LevelSummary();
-      summary.Level = levelResult.Level;
-      summary.Played = 1;
-      summary.Solved = levelResult.IsSuccessful ? 1 : 0;
-      summary.TotalGuesses = levelResult.Guesses;
-      summary.TotalTime = levelResult.Time;
-      mLevelSummaryList.add(summary);
-      FirebaseDatabase.getInstance().getReference().child(queryPath).setValue(summary.toMap());
+      LevelSummary levelSummary = new LevelSummary();
+      levelSummary.Level = levelResult.Level;
+      levelSummary.Played = 1;
+      levelSummary.Solved = levelResult.IsSuccessful ? 1 : 0;
+      levelSummary.TotalGuesses = levelResult.Guesses;
+      levelSummary.Milliseconds = levelResult.Milliseconds;
+      mLevelSummaryList.add(levelSummary);
+      FirebaseDatabase.getInstance().getReference().child(queryPath).setValue(levelSummary.toMap());
     }
 
     // update the user summary
@@ -330,7 +360,7 @@ public class MainActivity extends BaseActivity implements
 
     mUserSummary.LevelsPlayed++;
     mUserSummary.LevelsSolved = levelResult.IsSuccessful ? mUserSummary.LevelsSolved + 1 : mUserSummary.LevelsSolved;
-    mUserSummary.TotalTime += levelResult.Time;
+    mUserSummary.TotalMilliseconds += levelResult.Milliseconds;
     mUserSummary.TotalGuesses += levelResult.Guesses;
 
     queryPath = PathUtils.combine(UserSummary.ROOT, mUserId);

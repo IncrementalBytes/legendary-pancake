@@ -18,7 +18,7 @@ public class BaseActivity extends AppCompatActivity {
   public static final String ARG_USER_ID = "user_id";
   public static final String ARG_USER_NAME = "user_name";
   public static final String ARG_USER_PHOTO = "user_photo";
-  public static final String DEFAULT_ID = "";
+  public static final String DEFAULT_ID = "000000000-0000-0000-0000-000000000000";
 
   private ProgressDialog mProgressDialog;
 
@@ -45,19 +45,10 @@ public class BaseActivity extends AppCompatActivity {
   void replaceFragment(Fragment fragment) {
 
     LogUtils.debug(TAG, "++replaceFragment(Fragment)");
-    replaceFragment(fragment, fragment.getClass().getName());
-  }
-
-  void replaceFragment(Fragment fragment, String backStackName) {
-
-    LogUtils.debug(TAG, "++replaceFragment(Fragment, %s)", backStackName);
     FragmentManager fragmentManager = getSupportFragmentManager();
-    if (!fragmentManager.popBackStackImmediate(backStackName, 0)){ //fragment not in back stack, create it.
-      FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-      fragmentTransaction.replace(R.id.main_fragment_container, fragment);
-      fragmentTransaction.addToBackStack(backStackName);
-      fragmentTransaction.commit();
-    }
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    fragmentTransaction.replace(R.id.main_fragment_container, fragment);
+    fragmentTransaction.commit();
   }
 
   void showProgressDialog(String message) {

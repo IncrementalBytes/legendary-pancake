@@ -24,7 +24,7 @@ public class LevelSummary {
 
   public long TotalGuesses;
 
-  public long TotalTime;
+  public long Milliseconds;
 
   public String UserId;
 
@@ -36,7 +36,7 @@ public class LevelSummary {
     this.Played = 0;
     this.Solved = 0;
     this.TotalGuesses = 0;
-    this.TotalTime = 0;
+    this.Milliseconds = 0;
     this.UserId = BaseActivity.DEFAULT_ID;
   }
 
@@ -50,7 +50,7 @@ public class LevelSummary {
       this.Played,
       this.Solved,
       this.TotalGuesses,
-      this.TotalTime);
+      this.Milliseconds);
   }
 
   /**
@@ -63,7 +63,7 @@ public class LevelSummary {
     result.put("Played", this.Played);
     result.put("Solved", this.Solved);
     result.put("TotalGuesses", this.TotalGuesses);
-    result.put("TotalTime", this.TotalTime);
+    result.put("Milliseconds", this.Milliseconds);
     return result;
   }
 }

@@ -1,13 +1,11 @@
 package net.frostedbytes.android.picklythebest.models;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import net.frostedbytes.android.picklythebest.BaseActivity;
+import net.frostedbytes.android.picklythebest.utils.StringUtils;
 
 public class UserSummary implements Serializable {
 
@@ -16,7 +14,7 @@ public class UserSummary implements Serializable {
   public long LevelsPlayed;
   public long LevelsSolved;
   public long TotalGuesses;
-  public long TotalTime;
+  public long TotalMilliseconds;
   public String UserId;
 
   public UserSummary() {
@@ -24,22 +22,20 @@ public class UserSummary implements Serializable {
     this.LevelsPlayed = 0;
     this.LevelsSolved = 0;
     this.TotalGuesses = 0;
-    this.TotalTime = 0;
+    this.TotalMilliseconds = 0;
     this.UserId = BaseActivity.DEFAULT_ID;
   }
 
   @Override
   public String toString() {
 
-    Date temp = new Date(this.TotalTime);
-    DateFormat dateFormat = new SimpleDateFormat("mm:ss.SSS", Locale.ENGLISH);
     return String.format(
       Locale.ENGLISH,
       "Solved %d out of %d level(s); guessing %d time(s) in %s",
       this.LevelsSolved,
       this.LevelsPlayed,
       this.TotalGuesses,
-      dateFormat.format(temp));
+      StringUtils.toTimeString(this.TotalMilliseconds));
   }
 
   /**
@@ -52,7 +48,7 @@ public class UserSummary implements Serializable {
     result.put("LevelsPlayed", this.LevelsPlayed);
     result.put("LevelsSolved", this.LevelsSolved);
     result.put("TotalGuesses", this.TotalGuesses);
-    result.put("TotalTime", this.TotalTime);
+    result.put("TotalMilliseconds", this.TotalMilliseconds);
     return result;
   }
 }

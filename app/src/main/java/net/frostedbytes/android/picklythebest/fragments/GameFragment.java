@@ -15,17 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Chronometer;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import java.lang.ref.WeakReference;
-import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,6 +29,8 @@ import net.frostedbytes.android.picklythebest.BaseActivity;
 import net.frostedbytes.android.picklythebest.R;
 import net.frostedbytes.android.picklythebest.models.LevelResult;
 import net.frostedbytes.android.picklythebest.utils.LogUtils;
+import net.frostedbytes.android.picklythebest.utils.StringUtils;
+import net.frostedbytes.android.picklythebest.views.LevelChronometer;
 
 public class GameFragment extends Fragment {
 
@@ -41,13 +39,15 @@ public class GameFragment extends Fragment {
   public interface OnGameListener {
 
     void onGameCreated();
+
     void onGameContinue(LevelResult levelResult);
+
     void onGameQuit(LevelResult levelResult);
   }
 
   private OnGameListener mCallback;
 
-  private Chronometer mChronometer;
+  private LevelChronometer mChronometer;
 
   private TextView mAttemptsTextView;
   private TextView mGuessesTextView;
@@ -58,6 +58,7 @@ public class GameFragment extends Fragment {
   private List<Integer> mChoices;
   private int mGuesses;
   private int mLevel;
+  private LevelResult mLevelResult;
   private boolean mLevelComplete;
   private AsyncTask mTask;
 
@@ -83,9 +84,8 @@ public class GameFragment extends Fragment {
     mChronometer = view.findViewById(R.id.game_chronometer);
 
     // we need to set the guideline to 2/3 the current view width
-
     DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-    int width = (int)Math.round(displayMetrics.widthPixels * .66);
+    int width = (int) Math.round(displayMetrics.widthPixels * .66);
     guideline.setGuidelineBegin(width);
 
     mAttemptsTextView.setText(
@@ -145,7 +145,7 @@ public class GameFragment extends Fragment {
         "%s %d",
         getString(R.string.header_attempts),
         mAllowedAttempts));
-    mGridView.setAdapter(new ImageAdapter(mChoices));
+    mGridView.setAdapter(new GuessAdapter(mChoices));
     mGridView.setOnItemClickListener(this::onGridItemClick);
   }
 
@@ -155,12 +155,13 @@ public class GameFragment extends Fragment {
     TextView guessedText = v.findViewById(R.id.guess_text);
     ImageView updatedImage = v.findViewById(R.id.guess_image);
 
-    int converted = 0; // this value should never used as an answer
+    int converted; // this value should never used as an answer
     try {
       converted = NumberFormat.getNumberInstance(Locale.ENGLISH).parse(guessedText.getText().toString()).intValue();
     } catch (ParseException pe) {
       // TODO: handle this exception smoothly
       LogUtils.error(TAG, pe.getMessage());
+      return;
     }
 
     // handle case where results dialog was dismissed by a non-actionable event
@@ -174,23 +175,30 @@ public class GameFragment extends Fragment {
           mGuesses));
     }
 
+    if (mLevelResult == null) {
+      mLevelResult = new LevelResult();
+      mLevelResult.Level = mLevel;
+    }
+
+    mLevelResult.Guesses = mGuesses;
+
     // check the users answer to our known answer
     if (converted == mAnswer) { // user is correct!
-      if (!mLevelComplete) {
+      mLevelComplete = true;
+      if (mChronometer.isRunning()) {
         mChronometer.stop();
+        mLevelResult.Milliseconds = SystemClock.elapsedRealtime() - mChronometer.getBase();
       }
 
       updatedImage.setImageResource(R.drawable.ic_correct_dark);
 
       // create a level result object to send back to activity
-      LevelResult result = new LevelResult();
-      result.Guesses = mGuesses;
-      result.Level = mLevel;
-      result.IsSuccessful = true;
-      result.Time = SystemClock.elapsedRealtime() - mChronometer.getBase();
-      Date temp = new Date(result.Time);
-      DateFormat dateFormat = new SimpleDateFormat("mm:ss.SSS", Locale.ENGLISH);
-      String message = getResources().getQuantityString(R.plurals.game_summary, mGuesses, mGuesses, dateFormat.format(temp));
+      mLevelResult.IsSuccessful = true;
+      String message = getResources().getQuantityString(
+        R.plurals.game_summary,
+        mGuesses,
+        mGuesses,
+        StringUtils.toTimeString(mLevelResult.Milliseconds));
 
       // build dialog summarizing level result
       Builder builder = new Builder(getContext())
@@ -198,55 +206,51 @@ public class GameFragment extends Fragment {
         .setMessage(message)
         .setPositiveButton(R.string.next_level, (continueDialog, which) -> {
           LogUtils.debug(TAG, "++setPositiveButton()");
-          mLevelComplete = true;
-          mCallback.onGameContinue(result);
+          mCallback.onGameContinue(mLevelResult);
         })
         .setNegativeButton(R.string.quit, (continueDialog, which) -> {
           LogUtils.debug(TAG, "++setNegativeButton()");
-          mLevelComplete = true;
-          mCallback.onGameQuit(result);
+          mCallback.onGameQuit(mLevelResult);
         })
         .setOnDismissListener(dialogInterface -> {
-
           LogUtils.debug(TAG, "++onDismiss(DialogInterface)");
-          if (mLevelComplete) {
-            LogUtils.warn(TAG, "Dialog dismissed but we aren't leaving the level!");
-          }
+          mLevelComplete = true;
+          LogUtils.warn(TAG, "Dialog dismissed but we aren't leaving the level!");
         });
 
       AlertDialog dialog = builder.create();
       dialog.show();
-    } else {
-      updatedImage.setImageResource(R.drawable.ic_incorrect_dark);
+    } else if (!mLevelComplete) {
       if (mGuesses >= mAllowedAttempts) { // game over
-        LevelResult result = new LevelResult();
-        result.Guesses = mGuesses;
-        result.Level = mLevel;
-        result.IsSuccessful = false;
-        result.Time = SystemClock.elapsedRealtime() - mChronometer.getBase();
-        Date temp = new Date(result.Time);
-        DateFormat dateFormat = new SimpleDateFormat("mm:ss.SSS", Locale.ENGLISH);
-        String message = getResources().getQuantityString(R.plurals.game_summary, mGuesses, mGuesses, dateFormat.format(temp));
-        Builder builder = new Builder(getContext())
-          .setTitle("Game Over!")
-          .setMessage(message)
-          .setPositiveButton(R.string.back, (continueDialog, which) -> {
-            LogUtils.debug(TAG, "++setPositiveButton()");
-            mLevelComplete = true;
-            mCallback.onGameQuit(result);
-          })
-          .setOnDismissListener(dialogInterface -> {
+        updatedImage.setImageResource(R.drawable.ic_incorrect_dark);
+        mLevelComplete = true;
+        if (mChronometer.isRunning()) {
+          mChronometer.stop();
+          mLevelResult.Milliseconds = SystemClock.elapsedRealtime() - mChronometer.getBase();
+        }
 
+        // create a level result object to send back to activity
+        mLevelResult.IsSuccessful = false;
+        String message = String.format(Locale.ENGLISH, getString(R.string.ran_out_of_guesses), mAnswer);
+
+        // build dialog summarizing level result
+        Builder builder = new Builder(getContext())
+          .setTitle(R.string.game_over)
+          .setMessage(message)
+          .setPositiveButton(R.string.back, (continueDialog, which) -> LogUtils.debug(TAG, "++setPositiveButton()"))
+          .setOnDismissListener(dialogInterface -> {
             LogUtils.debug(TAG, "++onDismiss(DialogInterface)");
-            if (!mLevelComplete) {
-              LogUtils.warn(TAG, "Dialog dismissed but we aren't leaving the level!");
-            }
+            mCallback.onGameQuit(mLevelResult);
           });
 
         AlertDialog dialog = builder.create();
         dialog.show();
-      } else {
-        // TODO: FEATURE: color code this item based on proximity to correct answer
+      } else { // FEATURE: color code this item based on proximity to correct answer
+        if (converted > mAnswer) {
+          updatedImage.setImageResource(R.drawable.ic_greater_dark);
+        } else {
+          updatedImage.setImageResource(R.drawable.ic_less_dark);
+        }
       }
     }
   }
@@ -266,8 +270,8 @@ public class GameFragment extends Fragment {
     @Override
     protected List<Integer> doInBackground(Object... params) {
 
-      LogUtils.debug(TAG, "++doInBackground(Void...");
-      int level = (int)params[0];
+      LogUtils.debug(TAG, "++doInBackground(Object...)");
+      int level = (int) params[0];
       mAnswer = ThreadLocalRandom.current().nextInt(1, (level + 1));
       LogUtils.debug(TAG, "Answer: %,d", mAnswer);
       mChoices = new ArrayList<>();
@@ -282,7 +286,7 @@ public class GameFragment extends Fragment {
       }
 
       // user only gets guesses equal to 50% of the choices; might adjust in the future
-      mAllowedAttempts = (int)Math.round(mChoices.size() * .5);
+      mAllowedAttempts = (int) Math.round(mChoices.size() * .5);
       LogUtils.debug(TAG, "Allowed Attempts: %d", mAllowedAttempts);
 
       return new ArrayList<>();
@@ -291,7 +295,7 @@ public class GameFragment extends Fragment {
     @Override
     protected void onPostExecute(List<Integer> gridValues) {
 
-      LogUtils.debug(TAG, "++onPostExecute(List<Integer>");
+      LogUtils.debug(TAG, "++onPostExecute(List<Integer>)");
       GameFragment fragment = mFragmentWeakReference.get();
       if (fragment == null || fragment.isDetached()) {
         return;
@@ -304,6 +308,7 @@ public class GameFragment extends Fragment {
         fragment.mGuesses = mGuesses;
         fragment.mCallback.onGameCreated();
         fragment.updateUI();
+        fragment.mChronometer.setBase(SystemClock.elapsedRealtime());
         fragment.mChronometer.start();
       } else {
         LogUtils.error(TAG, "Callback not successful; app in unexpected state.");
@@ -311,11 +316,11 @@ public class GameFragment extends Fragment {
     }
   }
 
-  public class ImageAdapter extends BaseAdapter {
+  public class GuessAdapter extends BaseAdapter {
 
     private List<Integer> mChoices;
 
-    ImageAdapter(List<Integer> choices) {
+    GuessAdapter(List<Integer> choices) {
 
       mChoices = choices != null ? choices : new ArrayList<>();
     }

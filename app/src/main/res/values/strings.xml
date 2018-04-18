@@ -7,12 +7,14 @@
   <string name="preferences">Preferences</string>
   <string name="home">Home</string>
   <string name="new_game">New Game</string>
+  <string name="continue_game">Continue Game</string>
   <string name="statistics">Statistics</string>
   <string name="leaderboard">Leaderboard</string>
   <string name="take_a_guess">Take a guess!</string>
   <string name="correct_answer">Congratulations! Do you wish to continue?</string>
 
   <string name="header_attempts">Attempts:</string>
+  <string name="header_played">Played:</string>
   <string name="header_guesses">Guesses:</string>
   <string name="header_time">Time:</string>
   <string name="header_total_time">Total Time:</string>
@@ -20,6 +22,8 @@
   <string name="header_average_guesses">Average Guesses:</string>
   <string name="header_total_guesses">Total Guesses:</string>
   <string name="header_levels_played">Levels Played:</string>
+  <string name="header_level">Level:</string>
+  <string name="header_solved">Solved:</string>
 
   <string name="desc_locked">App requires authentication before continuing</string>
 
@@ -31,6 +35,8 @@
   <string name="logout_message">Are you sure you want to log out?</string>
   <string name="back">Back to Main Menu</string>
   <string name="header_levels_solved">Levels Solved:</string>
+  <string name="ran_out_of_guesses">The correct answer was %d</string>
+  <string name="game_over">Game Over!</string>
 
   <plurals name="game_summary">
     <item quantity="one">%d guess in %s</item>
